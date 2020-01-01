@@ -6,6 +6,7 @@ devicenum = raw_input('enter device number:')
 print 'running script....' 
 from cryptography.fernet import Fernet
 from pykeepass import PyKeePass
+import pyperclip
 import os
 key = b'IpDlPNMtfsR2Uu6esQtx70o4mb6EDU2KWk8Su2tT7XY='
 cipher_suite = Fernet(key)
@@ -27,10 +28,31 @@ else:
 	devicepw = device.password
 	deviceip = device.url
 	devicetitle = device.title
+	enablepw = 'None'
+	enablepw = device.get_custom_property('enable password')
+	enablepw = str(enablepw)
+	devicenumber = device.get_custom_property('device number')
 	customer = device.group
 	customer = str(customer)[7:]
-	print '\n',40 * '-','\nCustomer: '+customer,'\nDevice Name: '+devicetitle, '\nDevice ip: '+deviceip, '\nUsername: '+deviceuser, '\nPassword: '+devicepw, '\n',40 * '-','\n'
+	try:
+		device.notes
+	except:
+		devicenotes = 'None'
+	else:
+		devicenotes = str(device.notes)
+	
+	
+	print '\n',40 * '-','\nDevice Number: '+devicenumber,'\nCustomer: '+customer,'\nDevice Name: '+devicetitle, '\nDevice ip: '+deviceip, '\nUsername: '+deviceuser
+	if enablepw == 'None':
+		pyperclip.copy(devicepw)
+		print 'Password: ******* (In your clipboard)'
+	else:
+		pyperclip.copy(enablepw)
+		print 'Password: ******* \nEnable: ******* (In your clipboard)'
+	
+	print 'Notes: \n'+devicenotes,'\n',40 * '-'
 	os.system('sshpass -p '+devicepw +' ssh '+deviceuser+'@'+deviceip)
+
 
 #----------------------------------------------------------------------------------------
 # for encrypting the password 
