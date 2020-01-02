@@ -14,7 +14,6 @@ ciphered_text1 = b'gAAAAABeC2GFDDsiJ55to82BZwWVNhgySRW76'
 ciphered_text2 = b'F7jM5aI9FKWAZ3R9I7TQrrN7S04V0BNZzjjYldWi2VpvK-lYgxbEEYkmGGyQ=='
 hashpassword = ciphered_text1+hashpassword+ciphered_text2
 
-
 #=========function2======================================================	
 def function2():
 	deviceuser = device.username
@@ -37,8 +36,8 @@ def function2():
 		devicenotes = 'None'
 	else:
 		devicenotes = str(device.notes)
-	print '\n',40 * '-','\nDevice Number: '+devicenumber,'\nCustomer: '+customer,'\nDevice Name: '+devicetitle, '\nDevice ip: '+deviceip, '\nUsername: '+deviceuser
-	if deviceuser == 'Tacacs':
+	print '\n',40 * '-','\nDevice Number: '+devicenumber,'\nCustomer: '+customer,'\nDevice Name: '+devicetitle, '\nDevice ip: '+deviceip, '\nUsername: Tacacs'
+	if deviceuser.lower() == 'tacacs':
 		print 'Password: Tacacs'
 		print 'Notes: \n'+devicenotes,'\n',40 * '-'
 		if JH == 'none':
