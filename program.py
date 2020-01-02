@@ -85,16 +85,6 @@ def function2():
 			print '!'*40,'\nMust connect to Jumphost '+JumpHip + '\n','!'*40,'\n',40 * '-'+'\nJH Username: '+JumpHusername+'\nJH Domain: '+JumpHdomain +'\nJH Notes: '+JumpHnotes +  '\n',40 * '-'
 #=========function2======================================================
 
-#=========function1======================================================
-def function1():
-#-------------------------checks device number------------------------------------
-	try:
-		device.username
-	except:
-		print '\n'+'#'*40+'\n####  Incorrect device number Kosta ####'+'\n'+'#'*40 
-	else:
-		function2()
-#=========function1======================================================
 
 
 
@@ -105,6 +95,7 @@ except:
 	print '\n'+'#'*35+'\n####  Incorrect Password Kosta ####'+'\n'+'#'*35+'\nTry again'
 	hashpassword = getpass.getpass(b'keepass password:')
 	hashpassword = ciphered_text1+hashpassword+ciphered_text2
+	#-------------------------checks password------------------------------------	
 	try:
 		(cipher_suite.decrypt(hashpassword))
 	except:
@@ -113,12 +104,42 @@ except:
 		pw = (cipher_suite.decrypt(hashpassword))
 		kp = PyKeePass('/mnt/c/Users/adri9996/downloads/Database.kdbx', password=pw)
 		device = kp.find_entries(string={'device number': devicenum}, first=True)
-		function1()
+	#-------------------------checks device------------------------------------
+		try:
+			device.username
+		except:
+			print '\n'+'#'*40+'\n####  Incorrect device number Kosta ####'+'\n'+'#'*40+'\nTry again'
+			devicenum2 = raw_input('enter device number:')
+			device = kp.find_entries(string={'device number': devicenum2}, first=True)
+	#-------------------------checks device------------------------------------
+			try:
+				device.username
+			except:
+				print '\n'+'#'*40+'\n####  Incorrect device number Kosta ####'+'\n'+'#'*40
+			else:
+				function2()
+		else:
+			function2()	
 else:
 	pw = (cipher_suite.decrypt(hashpassword))
 	kp = PyKeePass('/mnt/c/Users/adri9996/downloads/Database.kdbx', password=pw)
 	device = kp.find_entries(string={'device number': devicenum}, first=True)
-	function1()
+	#-------------------------checks device------------------------------------
+	try:
+		device.username
+	except:
+		print '\n'+'#'*40+'\n####  Incorrect device number Kosta ####'+'\n'+'#'*40+'\nTry again'
+		devicenum2 = raw_input('enter device number:')
+		device = kp.find_entries(string={'device number': devicenum2}, first=True)
+	#-------------------------checks device------------------------------------
+		try:
+			device.username
+		except:
+			print '\n'+'#'*40+'\n####  Incorrect device number Kosta ####'+'\n'+'#'*40
+		else:
+			function2()
+	else:
+		function2()
 
 	
 	
