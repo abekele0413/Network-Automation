@@ -14,9 +14,9 @@ ciphered_text1 = b'gAAAAABeC2GFDDsiJ55to82BZwWVNhgySRW76'
 ciphered_text2 = b'F7jM5aI9FKWAZ3R9I7TQrrN7S04V0BNZzjjYldWi2VpvK-lYgxbEEYkmGGyQ=='
 hashpassword = ciphered_text1+hashpassword+ciphered_text2
 
+
 #=========function2======================================================	
 def function2():
-	
 	deviceuser = device.username
 	devicepw = device.password
 	deviceip = device.url
@@ -81,11 +81,9 @@ def function2():
 			JumpHdomain = str(JumpH.get_custom_property('domain'))
 			JumpHnotes = str(JumpH.notes)
 			print 'Password: ******* \nEnable: ******* '
-			print 'Notes: \n'+devicenotes,'\n',40 * '-'
+			print 'Notes: \n'+devicenotes,'\n',40 * '-'	
 			print '!'*40,'\nMust connect to Jumphost '+JumpHip + '\n','!'*40,'\n',40 * '-'+'\nJH Username: '+JumpHusername+'\nJH Domain: '+JumpHdomain +'\nJH Notes: '+JumpHnotes +  '\n',40 * '-'
 #=========function2======================================================
-
-
 
 
 #-------------------------checks password------------------------------------
@@ -147,13 +145,13 @@ else:
 
 
 #----------------------------------------------------------------------------------------
-# for encrypting the password 
-#        generate key
+#!!!!!!!!!!!!!for encrypting the password 
+#!!!!!!!!!!!!!generate key
 #from cryptography.fernet import Fernet
 #key = Fernet.generate_key()
 #print(key)
 
-#encrypt
+#!!!!!!!!!!!!!encrypt
 
 #from cryptography.fernet import Fernet
 #key = b'pRmgMa8T0INjEAfksaq2aafoOHHoiq320r9f9fhQDIONc1F8AY='
@@ -161,7 +159,7 @@ else:
 #ciphered_text = cipher_suite.encrypt(b"EnterPasswordHere")   #required to be bytes
 #print(ciphered_text) 
 
-#decrypt
+#!!!!!!!!!!!!!decrypt
 
 #from cryptography.fernet import Fernet
 #key = b'IpDlPNMtfsR2Uu6esQtx70o4mb6EDU2KWk8Su2tT7XY='
