@@ -7,13 +7,13 @@ print 'running script....'
 from cryptography.fernet import Fernet
 from pykeepass import PyKeePass
 import pyperclip
+import re
 import os
 key = b'IpDlPNMtfsR2Uu6esQtx70o4mb6EDU2KWk8Su2tT7XY='
 cipher_suite = Fernet(key)
 ciphered_text1 = b'gAAAAABeC2GFDDsiJ55to82BZwWVNhgySRW76'
 ciphered_text2 = b'F7jM5aI9FKWAZ3R9I7TQrrN7S04V0BNZzjjYldWi2VpvK-lYgxbEEYkmGGyQ=='
 hashpassword = ciphered_text1+hashpassword+ciphered_text2
-
 #=========function2======================================================	
 def function2():
 	deviceuser = device.username
@@ -36,14 +36,18 @@ def function2():
 		devicenotes = 'None'
 	else:
 		devicenotes = str(device.notes)
-	print '\n',40 * '-','\nDevice Number: '+devicenumber,'\nCustomer: '+customer,'\nDevice Name: '+devicetitle, '\nDevice ip: '+deviceip, '\nUsername: Tacacs'
+	print '\n',40 * '-','\nDevice Number: '+devicenumber,'\nCustomer: '+customer,'\nDevice Name: '+devicetitle, '\nDevice ip: '+deviceip
+	
 	if deviceuser.lower() == 'tacacs':
+		print 'Username: Tacacs'
 		print 'Password: Tacacs'
 		print 'Notes: \n'+devicenotes,'\n',40 * '-'
 		if JH == 'none':
 			deviceuser = raw_input('Enter Tacacs username:')
 			devicepw = getpass.getpass('Enter Tacacs password:')
+			
 			os.system('sshpass -p '+devicepw +' ssh '+deviceuser+'@'+deviceip)
+
 		else:
 			JumpH = kp.find_entries(title='jumphost', first=True)
 			JumpHip = str(JumpH.url)
@@ -53,11 +57,14 @@ def function2():
 			print '!'*40,'\nMust connect to Jumphost '+JumpHip + '\n','!'*40,'\n',40 * '-'+'\nJH Username: '+JumpHusername+'\nJH Domain: '+JumpHdomain +'\nJH Notes: '+JumpHnotes +  '\n',40 * '-'
 
 	elif enablepw == 'None':
+		print 'Username: '+deviceuser
 		if JH == 'none':
 			print 'Password: ******* (In your clipboard)'
 			print 'Notes: \n'+devicenotes,'\n',40 * '-'
 			pyperclip.copy(devicepw)
+			
 			os.system('sshpass -p '+devicepw +' ssh '+deviceuser+'@'+deviceip)
+
 		else:
 			JumpH = kp.find_entries(title='jumphost', first=True)
 			JumpHip = str(JumpH.url)
@@ -68,11 +75,14 @@ def function2():
 			print 'Notes: \n'+devicenotes,'\n',40 * '-'
 			print '!'*40,'\nMust connect to Jumphost '+JumpHip + '\n','!'*40,'\n',40 * '-'+'\nJH Username: '+JumpHusername+'\nJH Domain: '+JumpHdomain +'\nJH Notes: '+JumpHnotes +  '\n',40 * '-'
 	else:
+		print 'Username: '+deviceuser
 		if JH == 'none':
 			pyperclip.copy(enablepw)
 			print 'Password: ******* \nEnable: ******* (In your clipboard)'
 			print 'Notes: \n'+devicenotes,'\n',40 * '-'
+			
 			os.system('sshpass -p '+devicepw +' ssh '+deviceuser+'@'+deviceip)
+
 		else:
 			JumpH = kp.find_entries(title='jumphost', first=True)
 			JumpHip = str(JumpH.url)
