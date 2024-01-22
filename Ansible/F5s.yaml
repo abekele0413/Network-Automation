@@ -1,0 +1,21 @@
+---
+#ansible-playbook  -i /etc/ansible/hosts_encrypted /etc/ansible/f5_commands.yaml  --vault-password-file /etc/ansible/vault_pass
+#ansible-playbook -i /etc/ansible/hosts_encrypted /etc/ansible/f5_backups.yaml --vault-password-file /etc/ansible/vault_pass
+- hosts: ALL_RGS_F5s
+  gather_facts: false
+  connection: local
+  vars:
+    cli:
+      password: "{{ ansible_password }}"
+      user: "{{ ansible_user }}"
+      validate_certs: no
+      server: "{{ ansible_host }}"
+  tasks:
+      - name: This is a task
+        bigip_command:
+          commands:
+            - tmsh show sys version
+          provider: "{{ cli }}"
+
+        register: config
+      - debug: msg="{{ config.stdout }}"
