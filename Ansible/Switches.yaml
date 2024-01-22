@@ -1,3 +1,4 @@
+---
 #cd /etc/ansible/
 #hosts 
 #ansible-playbook -i /etc/ansible/hosts_encrypted /etc/ansible/switch_commands.yaml --vault-password-file /etc/ansible/vault_pass
