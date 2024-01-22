@@ -1,0 +1,25 @@
+#cd /etc/ansible/
+#hosts 
+#ansible-playbook -i /etc/ansible/hosts_encrypted /etc/ansible/switch_commands.yaml --vault-password-file /etc/ansible/vault_pass
+- hosts: All_RGS_Switches
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+  vars:
+    sudo: yes
+    ansible_become: no
+    ansible_become_method: enable
+    ansible_network_os: cisco.ios.ios
+    ssh_type: libssh
+    cli:
+      host: "{{ ansible_host }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_password }}"
+      authorize: yes
+  tasks:
+  - name: run show version command
+    ios_command:
+      commands:
+#        - show interface status
+        - show version | i uptime
+    register: config
+  - debug: msg="{{ config.stdout }}"
