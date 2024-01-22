@@ -1,0 +1,50 @@
+---
+#ansible-playbook  /home/ansibleuser/Desktop/testplaybook1.yaml
+#ansible-playbook  testplaybook2.yaml  --user=andr9996 --ask-pass
+#cd /etc/ansible/hosts
+#- hosts: RGS_FWs
+- name: configure asa5506
+  hosts: RGS_FWs
+  connection: network_cli
+  gather_facts: no
+  become: yes
+  become_method: enable
+  vars:
+    ansible_network_os: asa
+  tasks:
+    - name: "Show the ASA version"
+      asa_command:
+        commands:
+          - show version
+#  connection: local
+#  gather_facts: false
+#
+
+#
+#  tasks:
+#    - name: send commands
+##    asa_acl:
+##      lines:
+##        - access-list ACL-ANSIBLE extended permit tcp any any eq 82
+##        - access-list ACL-ANSIBLE extended permit tcp any any eq www
+##        - access-list ACL-ANSIBLE extended permit tcp any any eq 97
+##        - access-list ACL-ANSIBLE extended permit tcp any any eq 98
+##        - access-list ACL-ANSIBLE extended permit tcp any any eq 99
+##         match: strict
+##         replace: block
+##      provider: "{{ cli }}"
+#      cisco.asa.asa_command:
+#        commands:
+#          - show ver | i Cisco
+##          - conf t
+##          - no object-group network test-blacklist
+##          - network-object 22.22.22.22 255.255.255.255
+##          - end
+##          - writ me
+##          - show run object-g id test-blacklist
+#        provider: "{{ cli }}"
+#
+#
+#
+#      register: output
+#    - debug: var=output.stdout_lines
