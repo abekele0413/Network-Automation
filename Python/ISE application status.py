@@ -15,9 +15,9 @@ username = "admin"
 
 
 
-#devices_list = {"ise03":"10.84.48.206"}
-#devices_list = {"ise04":"10.84.48.205","ise03":"10.84.48.206"}
-devices_list = {"ise-sc2-pan-1":"10.113.12.217", "ise-wdc-pan-1":"10.128.243.2", "ise-sc2-mnt-1":"10.113.12.216", "ise-wdc-mnt-1":"10.128.243.1", "ise-sc2-psn-1":"10.113.12.78", "ise-wdc-psn-1":"10.128.153.226", "ise-ams2-psn-1":"10.27.190.144", "ise-blr3-psn-1":"10.110.74.144", "ise-sof2-psn-1":"10.23.108.144"} 
+#devices_list = {"ise03":"<ip address>"}
+#devices_list = {"ise04":"<ip address>","ise03":"<ip address>"}
+devices_list = {"ise-sc2-pan-1":"<ip address>", "ise-wdc-pan-1":"<ip address>", "ise-sc2-mnt-1":"<ip address>", "ise-wdc-mnt-1":"<ip address>", "ise-sc2-psn-1":"<ip address>", "ise-wdc-psn-1":"<ip address>", "ise-ams2-psn-1":"<ip address>", "ise-blr3-psn-1":"<ip address>", "ise-sof2-psn-1":"<ip address>"} 
 #devices_list = {"ise-ams2-psn-1":"10.27.190.144"} 
 counter=1
 command = "show application status ise | i Application"
