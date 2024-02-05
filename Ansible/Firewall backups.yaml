@@ -13,7 +13,7 @@
     ansible_network_os: ios
     ansible_network_cli_ssh_type: libssh
     ansible_user: nsadmin
-    ansible_password: password123
+    ansible_password: password
     cli:
       host: "{{ ansible_host }}"
       username: "{{ ansible_user }}"
