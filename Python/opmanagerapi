@@ -1,0 +1,191 @@
+#python3 /mnt/c/Users/abekele/'OneDrive - VMware, Inc'/Documents/opmanagerapi.py
+import requests
+import csv
+from csv import reader
+import re
+import openpyxl
+import time
+from datetime import datetime
+import base64
+from requests.api import head
+from requests.exceptions import ConnectTimeout
+requests.packages.urllib3.disable_warnings() 
+import pandas as pd
+import numpy as np
+
+
+
+
+print('working...')
+mtopm_prd_ams2_1_KEY = "bde4662395d"
+mtopm_prd_ams2_1 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_ams2_1_KEY+  "&customFields=Device_Owner"
+mtopm_prd_ams2_2_KEY = "1f99e4638bb2"
+mtopm_prd_ams2_2 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_ams2_2_KEY+  "&customFields=Device_Owner"
+mtopm_prd_blr3_1_KEY = "25a45c4fb8254"
+mtopm_prd_blr3_1 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_blr3_1_KEY+  "&customFields=Device_Owner"
+mtopm_prd_blr3_2_KEY = "9f1450339b9"
+mtopm_prd_blr3_2 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_blr3_2_KEY+  "&customFields=Device_Owner"
+mtopm_prd_sc2_1_KEY = "347084b4d02c9cb78c"
+mtopm_prd_sc2_1 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_sc2_1_KEY+  "&customFields=Device_Owner"
+mtopm_prd_sc2_2_KEY = "2057836e0d76a7d572"
+mtopm_prd_sc2_2 =  "https://10.253.1.62/api/json/v2/device/listDevices?apiKey=" + mtopm_prd_sc2_2_KEY+  "&customFields=Device_Owner"
+mtopm_prd_sc2_3_KEY = "f1a111395771"
+mtopm_prd_sc2_3 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_sc2_3_KEY+  "&customFields=Device_Owner"
+mtopm_prd_sc2_4_KEY = "a72c4434a0bc0ce5"
+mtopm_prd_sc2_4 =  "https://10./api/json/v2/device/listDevices?apiKey=" + mtopm_prd_sc2_4_KEY+  "&customFields=Device_Owner"
+
+opmanagers =[mtopm_prd_ams2_1, mtopm_prd_ams2_2, mtopm_prd_blr3_1, mtopm_prd_blr3_2, mtopm_prd_sc2_1, mtopm_prd_sc2_2, mtopm_prd_sc2_3, mtopm_prd_sc2_4
+]
+
+headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+}
+
+#device1 = 'fg1-sof2.eng.vmware.com.'
+#
+#
+#
+#m=x.start()
+#print(device1[:m])
+##print(response)
+
+#print(myjson)
+#response = requests.get(api_url, verify=False)
+#x = requests.get(OPM_PROBE_EMEA_1, verify=False)
+#x = x.content
+#csv_file = open('/home/svc.isebackup/scripts/csv_files/output.csv','wb')
+#csv_file.write(myjson)
+#csv_file.close()
+#print(x.status_code)
+#print(myjson)
+#-------------------------------------------------------------------------------------------------------------------------------
+opdata=[]
+nxos_list =[]
+csvheader= ['deviceName','ipaddress','Device_Owner','category','type','vendorName']
+
+#path = "/home/svc.isebackup/scripts/csv_files/iseexport.xlsx"
+#wb = openpyxl.load_workbook(path)
+#ws = wb.active
+#rowsvalue =ws.max_row
+rownum=2
+
+for url in opmanagers:
+    response= requests.request("GET",url,headers=headers,data={}, verify=False)
+    myjson=response.json()
+    for i in myjson['rows']:
+        device = i['deviceName']
+        reg = re.search(r'.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]', device)
+        if reg != None:
+            mm=reg.start()
+            device = device[:mm]
+        try:
+            if "LAN" in i['Device_Owner']:
+                d_owner = 'WLAN'
+                listing = [device,i['ipaddress']+"/32",d_owner,i['category'],i['type'],i['vendorName']]
+            elif "lan" in i['Device_Owner']:
+                d_owner = 'WLAN'
+                listing = [device,i['ipaddress']+"/32",d_owner,i['category'],i['type'],i['vendorName']]
+            elif "Lan" in i['Device_Owner']:
+                d_owner = 'WLAN'
+                listing = [device,i['ipaddress']+"/32",d_owner,i['category'],i['type'],i['vendorName']]
+            else:
+                listing = [device,i['ipaddress']+"/32",i['Device_Owner'],i['category'],i['type'],i['vendorName']]
+        except:
+            listing = [device,i['ipaddress']+"/32",'Unassigned',i['category'],i['type'],i['vendorName']]
+        opdata.append(listing)
+        rownum+=1
+        nxos_listing = [i['ipaddress']+"/32"]
+        #ws.cell(row = rownum, column = 5, value = nxos_listing)
+with open('/home/svc.isebackup/scripts/csv_files/output.csv', 'w',encoding='UTF8',newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(csvheader)
+    writer.writerows(opdata)
+
+
+#data_new = pd.read_csv("/home/svc.isebackup/scripts/csv_files/iseexport.xlsx")
+#data_new['opmanager ips'] = nxos_list  
+
+####combined_CSV = '/home/svc.isebackup/scripts/csv_files/combined.xlsx'
+####
+####df_ISE = pd.read_csv('/home/svc.isebackup/scripts/csv_files/iseexport.csv')
+####df_opmanager = pd.read_csv('/home/svc.isebackup/scripts/csv_files/output.csv')
+####
+####df_3= pd.merge(df_opmanager,df_ISE,on='ipaddress',how='left')
+####df_3.to_excel(combined_CSV,index=False)
+print('done!')
+#-------------------------------------------------------------------------------------------------------------------------------    
+##print(response)
+#print(opdata)
+#print('done')
+#with open(r'/home/svc.isebackup/scripts/csv_files/iseexport.csv',encoding='UTF8',newline='') as f:
+#    reader = csv.reader(f,delimiter=",")
+#    for i in reader:
+#        for x in opdata:
+##            print(l)
+#            if x[1] != i[1]:
+#                if 'Nexus' in x[4]:
+#                    print(x[1] +" "+ i[1],' no match')
+
+
+
+#def get_opm_managed_device_list(opm_probes_list=opm_probes_list, owner='LAN'):
+#
+#    print('')
+#    print('owner(OPM Func): ', owner)
+#    owner_opm = owner
+#    if owner in ['LAN', 'WLAN', 'lan', 'wlan']:
+#        owner_opm = 'LAN-WLAN'
+#        print('owner_opm : ', owner_opm)
+#
+#    # # # LAN managed devices place holder
+#    opm_managed_devices = []
+#
+#    for opm_probe in opm_probes_list:  # polling the different OPM probes
+#
+#        probe_name = opm_probe['probe_name']
+#        probe_api_key = opm_probe['probe_api_key']
+#
+#        # # # listDevices with custom fields
+#        probe_url = "https://" + opm_probe['probe_name'] + "/api/json/v2/device/listDevices?apiKey=" + \
+#            opm_probe['probe_api_key'] + \
+#            '&customFields=Region,Device_Owner,SerialNumber,AssetTag,Location'
+#        # print('probe_url: \n', probe_url)
+#
+#        opm_response = requests.get(probe_url, verify=False)
+#        # print('opm_response (status) ' +
+#        #       str(opm_probe['probe_name']) + ' : ', opm_response.status_code)
+#
+#        if opm_response.status_code == 200:
+#
+#            opm_response = opm_response.json()
+#            # print('opm_response : \n', opm_response)
+#
+#            opm_devices_rows_list = opm_response["rows"]
+#
+#            # # #  {'isSNMP': True, 'ipaddress': '10.188.7.159', 'statusStr': 'Critical', 'prettyTime': '1 year ago',
+#            # # #   'displayName': 'voiceivr2-sjc05', 'Device_Owner': 'DC-Metro', 'isNew': False, 'type': 'Cisco ASR 1002',
+#            # # #   'vendorName': 'Cisco', 'deviceName': 'voiceivr2-sjc05.vmware.com.10000000001', 'statusNum': '1',
+#            # # #   'SerialNumber': 'FOX1610GC6A', 'addedTime': '28 Mar 2021 03:40:15 AM PDT', 'interfaceCount': 3,
+#            # # #   'Region': 'NASA', 'category': 'Router'}
+#
+#            for devices in opm_devices_rows_list:
+#
+#                # # # checking whether the device is under monitoring
+#                if devices["statusStr"] != "UnManaged":
+#
+#                    # # # checking the owner. "devices.get" is imporant since some dicts does not have the key Device_Owner
+#                    if devices.get("Device_Owner") == owner_opm:  # LAN-WLAN # DC-Metro
+#                        # print('devices : ', devices)
+#                        devices['probe_name'] = probe_name
+#                        devices['probe_api_key'] = probe_api_key
+#                        opm_managed_devices.append(devices)
+#
+#    print('')
+#    print('opm_managed_devices(count) : ', len(opm_managed_devices))
+#    print('')
+#
+#get_opm_managed_device_list()
+
+
+
