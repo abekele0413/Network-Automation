@@ -29,7 +29,7 @@ def sendemail(message,destemail,subj,sourcemail):
     text=msg_block.as_string()
     #print text
     # Send the message via our SMTP server
-    s = smtplib.SMTP('sc9-mailhost1.vmware.com')
+    s = smtplib.SMTP('sc9-mailhost1.email.com')
     s.sendmail(sender, destination, text)
     s.quit()
 
