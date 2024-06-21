@@ -11,7 +11,7 @@ import openpyxl
 from openpyxl import Workbook
 import threading
 import json
-
+import re
 #path = "/mnt/c/Users/abekele/Documents/devices.xlsx"
 path = "/home/abekele/devicesmultithread.xlsx"
 wb = openpyxl.load_workbook(path)
@@ -20,7 +20,7 @@ rowsvalue =ws.max_row
 
 username = "svc.isebackup"
 passwdgetpass = getpass()
-password = passwdgetpass+"4"
+password = passwdgetpass+"@"
 
 command3 = ''
 command4 = ''
@@ -53,39 +53,41 @@ rowcount13 = 0
 rowcount14 = 0
 rowcount15 = 0
 rowcount16 = 0
+rowcount17 = 0
+rowcount18 = 0
+rowcount19 = 0
+rowcount20 = 0
+rowcount21 = 0
 #-------------------show commands------------------------------------------------------------
 
-command3 = "show ver | i uptime"
-#command4 = "show run | sec aaa"
-#command8 = 'show vlan br'
-showrun = "show run"
-#command4 = "show run | i vrf"
+#command3 = "copy run start"
+command4 = "show run aaa"
+command5 = "show run | sec aaa"
+#command6 = "show run | i aaa"
+#-----after change
+#command8 = "copy run start"
+command9 = "show run | sec aaa"
 
+showrun = "show run"
 #-------------------show commands------------------------------------------------------------
 
 
 #-------------------conf t changes------------------------------------------------------------
 
-#ioscommandset = [
-#"no aaa authentication login default group ISE-T-ADMIN_LAB04 local",
-#"no aaa authentication login AUTHEN-ADMIN-VTY-R group ISE-T-ADMIN_LAB04 local-case",
-#"no aaa authorization exec AUTHOR-EXEC-VTY-R group ISE-T-ADMIN_LAB04 local ",
-#"no aaa authorization commands 15 default group ISE-T-ADMIN_LAB04 local ",
-#"aaa authentication login default group ISE-R-ADMIN_LAB04 local",
-#"aaa authentication login AUTHEN-ADMIN-VTY-R group ISE-R-ADMIN_LAB04 local-case",
-#"aaa authorization exec AUTHOR-EXEC-VTY-R group ISE-R-ADMIN_LAB04 local ",
-#]
+ioscommandset = [
+'tacacs server SOF02_ISE',
+'address ipv4 10.23.108.144'
+]
 
 #nxcommandset = [
-#''
+#
 #]
 #-------------------conf t changes------------------------------------------------------------
-
 
 commandlista = [command3,command3,command3,command3, command4, command5, command6, ioscommandset, command8, command9]
 commandlistb = [command3,command3,command3,command3, command4, command5, command6, nxcommandset, command8, command9]
 outputlist =   [output3, output3, output3, output3,  output4,  output5,  output6,  output7,      output8,  output9]
-rowcountlist= [rowcount2,rowcount2,rowcount2,rowcount3,rowcount4,rowcount5,rowcount6,rowcount7,rowcount8,rowcount9,rowcount10,rowcount11,rowcount12,rowcount13,rowcount14,rowcount15,rowcount16]
+rowcountlist= [rowcount2,rowcount2,rowcount2,rowcount3,rowcount4,rowcount5,rowcount6,rowcount7,rowcount8,rowcount9,rowcount10,rowcount11,rowcount12,rowcount13,rowcount14,rowcount15,rowcount16,rowcount17,rowcount18,rowcount19,rowcount20,rowcount21]
 
 print('running....')
 def netmikoscript(rowcount):
@@ -99,10 +101,28 @@ def netmikoscript(rowcount):
 			netdevice = cell.value
 			if netdevice != None or '':
 				try:
+					#----Cisco IOS----------------------------------
 					if dtype == 'cisco_ios':
-						net_connect = netmiko.ConnectHandler(device_type="cisco_ios", host=netdevice, username=username, password=password,global_delay_factor=2)
+						net_connect = netmiko.ConnectHandler(device_type="cisco_ios", host=netdevice, username=username, password=password,global_delay_factor=10)
 						prompt= net_connect.find_prompt()
 						prompt=str(prompt)
+						#---show run ---------------    
+			
+						if showrun != '':
+							showrunoutput = net_connect.send_command(showrun)
+							showrunlength=len(showrunoutput)
+							#print(showrunlength)
+							showrunlengthloop = showrunlength // 25000
+							#print(showrunlengthloop)
+							valstart = 0
+							valend = 25000
+							colval2 = 10
+							for l in range(showrunlengthloop+1):
+								ws.cell(row = i, column = colval2, value = showrunoutput[valstart:valend])
+								valstart += 25000
+								valend += 25000
+								colval2 +=1
+
 						for vvv in range(3,10):
 							if commandlista[vvv] != '':
 								if commandlista[vvv] == ioscommandset:
@@ -111,8 +131,169 @@ def netmikoscript(rowcount):
 								else:
 									outputlist[vvv]= net_connect.send_command(commandlista[vvv])
 									ws.cell(row = i, column = vvv, value = outputlist[vvv])
-			#-------------------show run ------------------------------------------------------------    
-			#-------------------------------------------------------------------------------    
+
+							#columns 10-15
+			#-------------------------------------------------------------------------------
+			#---------------------brocade ----------------------------------------------------------    
+					elif dtype == 'brocade':
+						net_connect = netmiko.ConnectHandler(device_type='cisco_ios', host=netdevice, username=username, password=password,global_delay_factor=10)
+						net_connect.enable()
+						prompt= net_connect.find_prompt()
+						#print(str(prompt))
+
+						output3 = net_connect.send_command('show run | i radius-server')
+						ws.cell(row = i, column = 3, value = output3)
+
+			#-------------------------------------------------------------------------------
+			#---------------------Aruba ----------------------------------------------------------    
+					elif dtype == 'aruba':
+						net_connect = netmiko.ConnectHandler(device_type='autodetect', host=netdevice, username=username, password=password,global_delay_factor=2)
+						net_connect.enable()
+						prompt= net_connect.find_prompt()
+						prompt= net_connect.find_prompt()
+						#print(str(prompt))
+
+						#WClist=['atl01-wc-lab03', 'aus03-wc-lc01', 'aus03-wc-lc02', 'bos04-wc-lc01', 'bos04-wc-lc02', 'bos07-wc-lc01', 'bos07-wc-lc02', 'bos09-wc-lc01', 'bos09-wc-lc02', 'dca01-wc-lc01', 'dca01-wc-lc02', 'den03-wc-lc01', 'den03-wc-lc02', 'dfw02-wc-lc01', 'dfw02-wc-lc02', 'eze01-wc-lc01', 'eze01-wc-lc02', 'iad01-wc-lc01', 'iad01-wc-lc02', 'pao12-wc-lc01', 'pao12-wc-lc02', 'pao12-wc-lc03', 'pao12-wc-lc04', 'pdx03-wc-lc01', 'pdx03-wc-lc02', 'sea02-wc-lc01', 'sea02-wc-lc02', 'sfo03-wc-lc01', 'sfo03-wc-lc02', 'wcli001-atl01', 'wcli001-aus2', 'wcli001-bos2', 'wcli001-bos3', 'wcli001-den1', 'wcli001-eat1', 'wcli001-ewr2', 'wcli001-gru1', 'wcli001-rap-atl01', 'wcli001-sjo1', 'wcli002-atl01', 'wcli002-aus2', 'wcli002-bos2', 'wcli002-bos3', 'wcli002-den1', 'wcli002-eat1', 'wcli002-ewr2', 'wcli002-gru1', 'wcli002-sjo1', 'yyz01-wc-lc01', 'yyz01-wc-lc02']
+						#APACWClist=['bkk01-wc-lc01', 'bkk01-wc-lc02', 'blr02-sw-lc01', 'blr02-wc-lc02', 'blr07-wc-lc01', 'blr07-wc-lc02', 'blr12-wc-lc01', 'blr12-wc-lc02', 'blr13-wc-lc01', 'blr13-wc-lc02', 'bom01-wc-lc01', 'bom01-wc-lc02', 'del02-wc-lc01', 'del02-wc-lc02', 'kix01-wc-lc01', 'kix01-wc-lc02', 'maa04-wc-lc01', 'maa04-wc-lc02', 'nrt02-wc-lc01', 'nrt02-wc-lc02', 'pnq04-wc-lc01', 'pnq04-wc-lc02', 'wcli001-blr11', 'wcli001-blr6', 'wcli001-blr9', 'wcli001-icn1', 'wcli001-kul1', 'wcli001-maa2', 'wcli001-mel3', 'wcli001-pnq1', 'wcli001-rap-blr9', 'wcli001-sin1', 'wcli001-syd1', 'wcli001-tpe1', 'wcli002-blr11', 'wcli002-blr6', 'wcli002-blr9', 'wcli002-icn1', 'wcli002-kul1', 'wcli002-maa2', 'wcli002-mel3', 'wcli002-pnq1', 'wcli002-sin1', 'wcli002-syd1', 'wcli002-tpe1']
+						output3 = net_connect.send_command('show running-config | include authentication-server,host')
+						output3 += net_connect.send_command(' ')
+						output3 += net_connect.send_command(' ')
+						ws.cell(row = i, column = 3, value = output3)
+
+			#-------------------------------------------------------------------------------
+			#---------------------opengear ---------------------------------------------------------- 
+
+					elif dtype == 'opengear':
+						try:
+							net_connect = netmiko.ConnectHandler(device_type='autodetect', host=netdevice, username=username, password=password,global_delay_factor=10)
+							net_connect.enable()
+							prompt= net_connect.find_prompt()
+							prompt=str(prompt)
+							if prompt == 'Connect to port >':
+								ogpasswrods=['Pr!or!ty1sS3cur!ty!@#$','S3cur!ty!sn01Pr!or!ty','Chrys@l1ssucksb1gtim3','Chrys@l1ssucksb1gtim3twU','st@rf1sh','s3@st@r','ChooseOpengear','default']
+								print('needs to be root')
+								for iog in ogpasswrods:
+									net_connect.disconnect()
+									try:
+										net_connect = netmiko.ConnectHandler(device_type='autodetect', host=netdevice, username='root', password=iog, global_delay_factor=10)
+										prompt= net_connect.find_prompt()
+										prompt=str(prompt)
+										print(prompt)
+										break
+									except:
+										print('wrong root password')	
+
+							else:
+								prompt= net_connect.find_prompt()
+								prompt=str(prompt)
+								print(prompt)
+						except:
+							print("login didn't work")
+						output3 = net_connect.send_command('config -g config.auth')
+						ws.cell(row = i, column = 3, value = output3)
+
+					#----------------------conf t changes---------------------------------------------------------
+					#-------------------------------------------------------------------------------   
+					#	net_connect.send_command("config -s config.auth.radius.auth_server='10.113.12.78,10.128.153.226,x.x.x.x'")
+					#	net_connect.send_command("config -s config.auth.radius.acct_server='10.113.12.78,10.128.153.226,x.x.x.x'")
+					#	config_result = net_connect.send_command("config -a") 
+					#	#print("Config result : ", config_result)
+					#	output4 = 'change successful'
+					#	ws.cell(row = i, column = 4, value = output4)
+					#	#print(output4)
+					#-------------------------------------------------------------------------------
+					#------------------------------------------------------------------------------- 
+						
+
+			#-------------------------------------------------------------------------------
+			#---------------------Avocent ----------------------------------------------------------  
+					elif dtype == 'avocent':
+						net_connect = netmiko.ConnectHandler(device_type='autodetect', host=netdevice, username=username, password=password,global_delay_factor=10)
+						net_connect.enable()
+						prompt= net_connect.find_prompt()
+						prompt= net_connect.find_prompt()
+						prompt=str(prompt)
+						if 'cli->' not in prompt:
+							net_connect.send_command('cli', expect_string="cli")
+						
+							
+		#				avocent_prompt_regex = re.findall(r'[\w]', prompt)
+		
+						#print(prompt)
+						output1 = net_connect.send_command('show system/information/', expect_string="cli")
+						modelnum=re.findall(r'type:\s[\w,]{3}[\d]{4}',output1)
+						modelnum = str(modelnum)
+						modelnum = modelnum[modelnum.find('type:')+6:modelnum.find(']')-1]
+						#print(modelnum)
+						#for 6000 series
+						if modelnum[:4] == ('ACS6'):
+							output3 = 'avocent is a 6000 series'
+							ws.cell(row = i, column = 3, value = output3)
+							output4 = net_connect.send_command('cd authentication/', expect_string="cli")
+							output4 = net_connect.send_command('list_configuration', expect_string="cli")
+							ws.cell(row = i, column = 4, value = output4)
+
+
+				#-----------conf t changes---------------------------------------------------------
+				#----------------------------------------------------------------------------------
+				#			try:
+				#
+				#
+				#				net_connect.send_command("cd /users/local_accounts/user_names/admin/", expect_string="cli") 
+				#				admin_path_result = net_connect.send_command("pwd", expect_string="cli") 
+				#				print("path(admin) : ", admin_path_result)
+				#				net_connect.send_command("set password=" + new_password + " confirm_password=" + new_password, expect_string="cli")
+				#				net_connect.send_command("cd /users/local_accounts/user_names/root/", expect_string="cli")
+				#				
+				#				root_path_result = net_connect.send_command("pwd", expect_string="cli") 
+				#				print("path(root) : ", root_path_result)
+				#				
+				#				net_connect.send_command("set password=" + new_password + " confirm_password=" + new_password, expect_string="cli")
+				#				net_connect.send_command("commit", expect_string="cli")
+				#				output4 = 'change successful'
+				#				print(output4)
+				#			except:
+				#				print('avocent 6000 password change failed')
+				#---------------------------------------------------------------------------------------
+				#---------------------------------------------------------------------------------------
+						#for 8000 series
+						elif modelnum[:4] == ('ACS8'):
+							output3 = 'avocent is a 8000 series'
+							ws.cell(row = i, column = 3, value = output3)
+							output4 = net_connect.send_command('cd authentication/', expect_string="cli")
+							output4 = net_connect.send_command('list_configuration', expect_string="cli")
+							ws.cell(row = i, column = 4, value = output4)
+			#---------------conf t changes---------------------------------------------------------
+			#--------------------------------------------------------------------------------------
+			#				try:
+			#					net_connect.send_command("cd /users/local_accounts/user_names/admin/settings/", expect_string="cli") 
+			#					admin_path_result = net_connect.send_command("pwd", expect_string="cli") 
+			#					print("path(admin) : ", admin_path_result)
+			#
+			#					net_connect.send_command("set password=" + new_password + " confirm_password=" + new_password, expect_string="cli")
+			#					
+			#					net_connect.send_command("cd /users/local_accounts/user_names/root/settings/", expect_string="cli") 
+			#					root_path_result = net_connect.send_command("pwd", expect_string="cli") 
+			#					print("path(root) : ", root_path_result)
+			#
+			#					net_connect.send_command("set password=" + new_password + " confirm_password=" + new_password, expect_string="cli")
+			#					net_connect.send_command("commit", expect_string="cli") 
+			#					output4 = 'change successful'
+			#					print(output4)
+			#				except:
+			#					print('avocent 6000 password change failed')
+			#-------------------------------------------------------------------------------------------
+			#-------------------------------------------------------------------------------------------
+						else:
+							print('model not a 6000 or 8000 series')
+
+				
+
+					else:
+						net_connect = netmiko.ConnectHandler(device_type="cisco_ios", host=netdevice, username=username, password=password)
+						prompt= net_connect.find_prompt()
+						prompt=str(prompt)
+					#---show run ---------------    
 						if showrun != '':
 							showrunoutput = net_connect.send_command(showrun)
 							showrunlength=len(showrunoutput)
@@ -128,12 +309,9 @@ def netmikoscript(rowcount):
 								valend += 25000
 								colval2 +=1
 							#columns 10-15
-			#-------------------------------------------------------------------------------
-			#-------------------------------------------------------------------------------    
-					else:
-						net_connect = netmiko.ConnectHandler(device_type="cisco_ios", host=netdevice, username=username, password=password)
-						prompt= net_connect.find_prompt()
-						prompt=str(prompt)
+
+						#output3 = net_connect.send_command('show interface br')
+						#ws.cell(row = i, column = 3, value = output3)
 						for vvv in range(3,10):
 							if commandlistb[vvv] != '':
 								if commandlistb[vvv] == nxcommandset:
@@ -142,29 +320,13 @@ def netmikoscript(rowcount):
 								else:
 									outputlist[vvv]= net_connect.send_command(commandlistb[vvv])
 									ws.cell(row = i, column = vvv, value = outputlist[vvv])
-			
-			#-------------------show run ------------------------------------------------------------    
-			#-------------------------------------------------------------------------------    
-						if showrun != '':
-							showrunoutput = net_connect.send_command(showrun)
-							showrunlength=len(showrunoutput)
-							#print(showrunlength)
-							showrunlengthloop = showrunlength // 25000
-							#print(showrunlengthloop)
-							valstart = 0
-							valend = 25000
-							colval2 = 10
-							for l in range(showrunlengthloop+1):
-								ws.cell(row = i, column = colval2, value = showrunoutput[valstart:valend])
-								valstart += 25000
-								valend += 25000
-								colval2 +=1
-							#columns 10-15
+				
+
 			#-------------------------------------------------------------------------------
 
 					net_connect.disconnect()
 					wb.save(path)
-					print('########################################################\nCurrently on row %s of %s. Logged into %s\n---------------------------------------'% (i,rowsvalue,cell.value))
+					print('########################################################\nCurrently on row %s of %s. Sucessfully logged into %s\n---------------------------------------'% (i,rowsvalue,cell.value))
 		#			print('======================================================== \n %s before: \n %s \n------------------------------------\n %s after: \n %s\n ========================================================'%(netdevice,output2,netdevice, output6))
 				
 		#			x=input('%s was sucessful. press enter to continue '%(netdevice))
@@ -172,7 +334,7 @@ def netmikoscript(rowcount):
 					print('########################################################\nCurrently on row %s of %s. Error logging into %s\n---------------------------------------'% (i,rowsvalue,cell.value))
 					ws.cell(row = i, column = 3, value = 'there was an error here')
 					wb.save(path)
-					print('error connecting')
+					#print('error connecting')
 		#			x=input('%s had issues logging in. press enter to continue'%(netdevice))
 			rowcountlist[rowcount]+=10
 
@@ -210,6 +372,18 @@ def MTstartrow15():
 	netmikoscript(15)
 def MTstartrow16():
 	netmikoscript(16)
+def MTstartrow17():
+	netmikoscript(17)
+def MTstartrow18():
+	netmikoscript(18)
+def MTstartrow19():
+	netmikoscript(19)
+def MTstartrow20():
+	netmikoscript(20)
+def MTstartrow21():
+	netmikoscript(21)
+
+
 
 threading.Thread(target=MTstartrow2).start()
 threading.Thread(target=MTstartrow3).start()
@@ -226,41 +400,9 @@ threading.Thread(target=MTstartrow13).start()
 threading.Thread(target=MTstartrow14).start()
 threading.Thread(target=MTstartrow15).start()
 threading.Thread(target=MTstartrow16).start()
+threading.Thread(target=MTstartrow17).start()
+threading.Thread(target=MTstartrow18).start()
+threading.Thread(target=MTstartrow19).start()
+threading.Thread(target=MTstartrow20).start()
+threading.Thread(target=MTstartrow21).start()
 
-
-#---------------------------------------------------------------
-#corralating data with textfsm and adding it to dictionary
-#output3 = net_connect.send_command('show vlan br',use_textfsm=True)
-#output4 = net_connect.send_command('show ip arp',use_textfsm=True)
-#
-#for i in output3:
-#	ii=('Vlan'+i['vlan_id'])
-#	for l in output4:
-#		if str(l['interface']) == str(ii):
-#			newdata={'vlan_name':i['name']}
-#			l.update(newdata)
-#
-#for i in output4:
-#	print(i['interface']+' '+i['vlan_name'])
-
-#				if command4 != '':
-#					output4 = net_connect.send_command(command4)
-#					ws.cell(row = i, column = 4, value = output4)
-#					print(output4)
-#				if command5 != '':
-#					output5 = net_connect.send_command(command5)
-#					ws.cell(row = i, column = 5, value = output5)
-#				if command6 != '':
-#					output6 = net_connect.send_command(command6)
-#					ws.cell(row = i, column = 6, value = output6)	
-#			#---	--------------conf t changes------------------------------------------------------------    
-#			#---	--------------------------------------------------------------------------    
-#				if nxcommandset != '':
-#					output5 = net_connect.send_config_set(nxcommandset)
-#					ws.cell(row = i, column = 7, value = output7)
-#				if command8 != '':
-#					output8 = net_connect.send_command(command8)
-#					ws.cell(row = i, column = 8, value = output8)
-#				if command9 != '':
-#					output9 = net_connect.send_command(command9)
-#					ws.cell(row = i, column = 9, value = output9)
