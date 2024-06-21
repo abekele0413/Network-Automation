@@ -1,0 +1,474 @@
+#python3 /mnt/c/Users/abekele/Downloads/iseapi.py
+#python3 /home/svc.isebackup/scripts/iseapi.py > /dev/null &
+#ps -ef | grep iseapi.py
+#kill -9 5799
+#*/5 * * * * python3 /home/svc.isebackup/scripts/pythonmonitorcheck.py > /dev/null 2>&1
+
+
+import requests
+import time
+from datetime import datetime
+import base64
+from requests.exceptions import ConnectTimeout
+import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+#import threading
+def sendemail(message,destemail,subj,sourcemail):
+    destination = destemail
+    msg_block = MIMEMultipart()
+    sender = sourcemail
+    subject = subj
+    body = message
+    msg_block['From'] = sender
+    msg_block['To'] = destination
+    msg_block['Subject'] = subject
+    print(msg_block)
+    msg_block.attach(MIMEText(body, 'plain'))
+    text=msg_block.as_string()
+    #print text
+    # Send the message via our SMTP server
+    s = smtplib.SMTP('sc9-mailhost1.vmware.com')
+    s.sendmail(sender, destination, text)
+    s.quit()
+
+
+
+try:
+    os.remove("/home/svc.isebackup/scripts/monitor_log.txt")
+except:
+    print('didnt delete')
+
+f = open("/home/svc.isebackup/scripts/monitor_log.txt", "w")
+
+base64_string ="I1YjU0ojI04jcGVUSyNvZDlNVEM3cDcxb3h4NFdTdFJzYWRmYWFkZmFk"
+base64_bytes = base64_string.encode("ascii")
+password1 = base64.b64decode(base64_bytes)
+password = password1.decode("ascii")
+#url = 'https://ise04-atl01.vmware.com:9060/ers/config/deploymentinfo/getAllInfo'
+urlsc2panapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-sc2-pan-1'
+urlsc2pan= 'https://ise-sc2-pan-1.infra.vmware.com'
+urlwdcpanapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-wdc-pan-1'
+urlwdcpan= 'https://ise-wdc-pan-1.infra.vmware.com'
+urlsc2mntapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-sc2-mnt-1'
+urlsc2mnt= 'https://ise-sc2-mnt-1.infra.vmware.com'
+urlwdcmntapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-wdc-mnt-1'
+urlwdcmnt= 'https://ise-wdc-mnt-1.infra.vmware.com'
+urlsc2psnapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-sc2-psn-1'
+urlsc2psn= 'https://ise-sc2-psn-1.infra.vmware.com'
+urlwdcpsnapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-wdc-psn-1'
+urlwdcpsn= 'https://ise-wdc-psn-1.infra.vmware.com'
+urlsofpsnapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-sof2-psn-1'
+urlsofpsn= 'https://ise-sof2-psn-1.infra.vmware.com'
+urlamspsnapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-ams2-psn-1'
+urlamspsn= 'https://ise-ams2-psn-1.infra.vmware.com'
+urlblrpsnapi= 'https://ise-sc2-pan-1.infra.vmware.com:9060/ers/config/node/name/ise-blr3-psn-1'
+urlblrpsn= 'https://ise-blr3-psn-1.infra.vmware.com'
+urlatllabapi= 'https://ise04-atl01.vmware.com:9060/ers/config/sessionservicenode/name/ise04-atl01'
+urlatllab= 'https://ise04-atl01.vmware.com'
+downcountsc2pan=0
+downcountwdcpan=0
+downcountsc2mnt=0
+downcountwdcmnt=0
+downcountsc2psn=0
+downcountwdcpsn=0
+downcountsofpsn=0
+downcountamspsn=0
+downcountblrpsn=0
+downcountatllab=0
+counter123=0
+
+requests.packages.urllib3.disable_warnings()
+
+while(True):
+    #---------------------sc2pan-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlsc2pan, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlsc2panapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountsc2pan:%s"%(repcode,now,downcountsc2pan))
+                f.write("node is up response:%s date:%s downcountsc2pan:%s\n"%(repcode,now,downcountsc2pan))
+                
+                downcountsc2pan=0
+                
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountsc2pan +=1
+
+        except:
+            downcountsc2pan +=1
+            print("node is down response:%s date:%s downcountsc2pan:%s"%(repcode,now,downcountsc2pan))
+            f.write("node is down response:%s date:%s downcountsc2pan:%s\n"%(repcode,now,downcountsc2pan))
+            
+    except:
+        downcountsc2pan +=1
+        print("node is down response:%s date:%s downcountsc2pan:%s"%(repcode,now,downcountsc2pan))
+        f.write("node is down response:%s date:%s downcountsc2pan:%s\n"%(repcode,now,downcountsc2pan))
+    f.flush()    
+    if downcountsc2pan == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()
+        sendemail("%s is not responding, please check as soon as possible."%(urlsc2pan),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------wdcpan-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlwdcpan, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlwdcpanapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountwdcpan:%s"%(repcode,now,downcountwdcpan))
+                f.write("node is up response:%s date:%s downcountwdcpan:%s\n"%(repcode,now,downcountwdcpan))
+                
+                downcountwdcpan=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountwdcpan +=1
+        except:
+            downcountwdcpan +=1
+            print("node is down response:%s date:%s downcountwdcpan:%s"%(repcode,now,downcountwdcpan))
+            f.write("node is down response:%s date:%s downcountwdcpan:%s\n"%(repcode,now,downcountwdcpan))
+            
+    except:
+        downcountwdcpan +=1
+        print("node is down response:%s date:%s downcountwdcpan:%s"%(repcode,now,downcountwdcpan))
+        f.write("node is down response:%s date:%s downcountwdcpan:%s\n"%(repcode,now,downcountwdcpan))
+    f.flush()    
+    if downcountwdcpan == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlwdcpan),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------sc2mnt-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlsc2mnt, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlsc2mntapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountsc2mnt:%s"%(repcode,now,downcountsc2mnt))
+                f.write("node is up response:%s date:%s downcountsc2mnt:%s\n"%(repcode,now,downcountsc2mnt))
+                
+                downcountsc2mnt=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountsc2mnt +=1
+        except:
+            downcountsc2mnt +=1
+            print("node is down response:%s date:%s downcountsc2mnt:%s"%(repcode,now,downcountsc2mnt))
+            f.write("node is down response:%s date:%s downcountsc2mnt:%s\n"%(repcode,now,downcountsc2mnt))
+            
+    except:
+        downcountsc2mnt +=1
+        print("node is down response:%s date:%s downcountsc2mnt:%s"%(repcode,now,downcountsc2mnt))
+        f.write("node is down response:%s date:%s downcountsc2mnt:%s\n"%(repcode,now,downcountsc2mnt))
+    f.flush()    
+    if downcountsc2mnt == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlsc2mnt),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------wdcmnt-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlwdcmnt, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlwdcmntapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountwdcmnt:%s"%(repcode,now,downcountwdcmnt))
+                f.write("node is up response:%s date:%s downcountwdcmnt:%s\n"%(repcode,now,downcountwdcmnt))
+                
+                downcountwdcmnt=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountwdcmnt +=1
+        except:
+            downcountwdcmnt +=1
+            print("node is down response:%s date:%s downcountwdcmnt:%s"%(repcode,now,downcountwdcmnt))
+            f.write("node is down response:%s date:%s downcountwdcmnt:%s\n"%(repcode,now,downcountwdcmnt))
+            
+    except:
+        downcountwdcmnt +=1
+        print("node is down response:%s date:%s downcountwdcmnt:%s"%(repcode,now,downcountwdcmnt))
+        f.write("node is down response:%s date:%s downcountwdcmnt:%s\n"%(repcode,now,downcountwdcmnt))
+    f.flush()    
+    if downcountwdcmnt == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlwdcmnt),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------sc2psn-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlsc2psn, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlsc2psnapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountsc2psn:%s"%(repcode,now,downcountsc2psn))
+                f.write("node is up response:%s date:%s downcountsc2psn:%s\n"%(repcode,now,downcountsc2psn))
+                
+                downcountsc2psn=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountsc2psn +=1
+        except:
+            downcountsc2psn +=1
+            print("node is down response:%s date:%s downcountsc2psn:%s"%(repcode,now,downcountsc2psn))
+            f.write("node is down response:%s date:%s downcountsc2psn:%s\n"%(repcode,now,downcountsc2psn))
+            
+    except:
+        downcountsc2psn +=1
+        print("node is down response:%s date:%s downcountsc2psn:%s"%(repcode,now,downcountsc2psn))
+        f.write("node is down response:%s date:%s downcountsc2psn:%s\n"%(repcode,now,downcountsc2psn))
+    f.flush()    
+    if downcountsc2psn == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlsc2psn),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------wdcpsn-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlwdcpsn, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlwdcpsnapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountwdcpsn:%s"%(repcode,now,downcountwdcpsn))
+                f.write("node is up response:%s date:%s downcountwdcpsn:%s\n"%(repcode,now,downcountwdcpsn))
+                
+                downcountwdcpsn=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountwdcpsn +=1
+        except:
+            downcountwdcpsn +=1
+            print("node is down response:%s date:%s downcountwdcpsn:%s"%(repcode,now,downcountwdcpsn))
+            f.write("node is down response:%s date:%s downcountwdcpsn:%s\n"%(repcode,now,downcountwdcpsn))
+            
+    except:
+        downcountwdcpsn +=1
+        print("node is down response:%s date:%s downcountwdcpsn:%s"%(repcode,now,downcountwdcpsn))
+        f.write("node is down response:%s date:%s downcountwdcpsn:%s\n"%(repcode,now,downcountwdcpsn))
+    f.flush()    
+    if downcountwdcpsn == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlwdcpsn),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------sofpsn-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlsofpsn, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlsofpsnapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountsofpsn:%s"%(repcode,now,downcountsofpsn))
+                f.write("node is up response:%s date:%s downcountsofpsn:%s\n"%(repcode,now,downcountsofpsn))
+                
+                downcountsofpsn=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountsofpsn +=1
+        except:
+            downcountsofpsn +=1
+            print("node is down response:%s date:%s downcountsofpsn:%s"%(repcode,now,downcountsofpsn))
+            f.write("node is down response:%s date:%s downcountsofpsn:%s\n"%(repcode,now,downcountsofpsn))
+            
+    except:
+        downcountsofpsn +=1
+        print("node is down response:%s date:%s downcountsofpsn:%s"%(repcode,now,downcountsofpsn))
+        f.write("node is down response:%s date:%s downcountsofpsn:%s\n"%(repcode,now,downcountsofpsn))
+    f.flush()    
+    if downcountsofpsn == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlsofpsn),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------amspsn-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlamspsn, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlamspsnapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountamspsn:%s"%(repcode,now,downcountamspsn))
+                f.write("node is up response:%s date:%s downcountamspsn:%s\n"%(repcode,now,downcountamspsn))
+                
+                downcountamspsn=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountamspsn +=1
+        except:
+            downcountamspsn +=1
+            print("node is down response:%s date:%s downcountamspsn:%s"%(repcode,now,downcountamspsn))
+            f.write("node is down response:%s date:%s downcountamspsn:%s\n"%(repcode,now,downcountamspsn))
+            
+    except:
+        downcountamspsn +=1
+        print("node is down response:%s date:%s downcountamspsn:%s"%(repcode,now,downcountamspsn))
+        f.write("node is down response:%s date:%s downcountamspsn:%s\n"%(repcode,now,downcountamspsn))
+    f.flush()    
+    if downcountamspsn == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlamspsn),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------blrpsn-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlblrpsn, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlblrpsnapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountblrpsn:%s"%(repcode,now,downcountblrpsn))
+                f.write("node is up response:%s date:%s downcountblrpsn:%s\n"%(repcode,now,downcountblrpsn))
+                
+                downcountblrpsn=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountblrpsn +=1
+        except:
+            downcountblrpsn +=1
+            print("node is down response:%s date:%s downcountblrpsn:%s"%(repcode,now,downcountblrpsn))
+            f.write("node is down response:%s date:%s downcountblrpsn:%s\n"%(repcode,now,downcountblrpsn))
+            
+    except:
+        downcountblrpsn +=1
+        print("node is down response:%s date:%s downcountblrpsn:%s"%(repcode,now,downcountblrpsn))
+        f.write("node is down response:%s date:%s downcountblrpsn:%s\n"%(repcode,now,downcountblrpsn))
+    f.flush()    
+    if downcountblrpsn == 8:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, please check as soon as possible."%(urlblrpsn),"adrian@email.com","ISE node not responding","serviceaccount@email.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    #---------------------atl lab-------------------------------------------------------------------------------------------------
+    now = datetime.now()
+    current_time = now.strftime("%H%M")
+    current_time = str(current_time)
+    repcode = 0
+    try:
+        reponse = requests.get(urlatllab, verify=False, timeout=2 )
+        try:
+            reponse = requests.get(urlatllabapi, auth=('apiiseADM', password), headers = {"Accept": "application/json"}, verify=False, timeout=2)
+            repcode = int(reponse.status_code)
+            if repcode == 200:
+                print("node is up response:%s date:%s downcountatllab:%s"%(repcode,now,downcountatllab))
+                f.write("node is up response:%s date:%s downcountatllab:%s\n"%(repcode,now,downcountatllab))
+                
+                downcountatllab=0
+            elif repcode != 200:
+                print('issue with the API:%s'%(repcode))
+                f.write('issue with the API:%s\n'%(repcode))
+                downcountatllab +=1
+        except:
+            downcountatllab +=1
+            print("node is down response:%s date:%s downcountatllab:%s"%(repcode,now,downcountatllab))
+            f.write("node is down response:%s date:%s downcountatllab:%s\n"%(repcode,now,downcountatllab))
+            
+    except:
+        downcountatllab +=1
+        print("node is down response:%s date:%s downcountatllab:%s"%(repcode,now,downcountatllab))
+        f.write("node is down response:%s date:%s downcountatllab:%s\n"%(repcode,now,downcountatllab))
+    f.flush()    
+    if downcountatllab == 5:
+        print("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        f.write("                  email sent\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        f.flush()    
+        sendemail("%s is not responding, this is a lab device so this is not a high priority."%(urlatllab),"adrian.bekele@broadcom.com;anish-p.kumar@broadcom.com;venuprasad.ls@broadcom.com;arun-kumar.mohan@broadcom.com","Lab node not responding","ISE-Net-Services@vmware.com")
+    repcode = 0
+    #----------------------------------------------------------------------------------------------------------------------------------
+    if current_time == '2200':
+        sendemail("monitoring is up and running","adrian.bekele@broadcom.com","ISE monitoring","ISE-Net-Services@vmware.com")
+        time.sleep(60)
+    counter123 += 1
+
+    if counter123 > 13000:
+        with open(r"/home/svc.isebackup/scripts/monitor_log.txt", 'r+') as fp:
+            lines = fp.readlines()
+            fp.seek(0)
+            fp.truncate()
+            fp.writelines(lines[10:])	
+
+#        try:
+#            os.remove("/home/svc.isebackup/scripts/monitor_log.txt")
+#            print('file deleted')
+#        except:
+#            print('didnt delete')
+#        
+##        f = open("/home/svc.isebackup/scripts/monitor_log.txt", "w")
+#        counter123 = 0
+
+#python3 /home/svc.isebackup/scripts/iseapi.py > /dev/null &
+#ps -ef | grep iseapi.py
+#kill -9 5799
+#python3 /home/svc.isebackup/scripts/pythonmonitorcheck.py > /dev/null
+
+
