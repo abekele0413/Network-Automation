@@ -74,10 +74,8 @@ showrun = "show run"
 
 #-------------------conf t changes------------------------------------------------------------
 
-ioscommandset = [
-'tacacs server SOF02_ISE',
-'address ipv4 10.23.108.144'
-]
+#ioscommandset = [
+#]
 
 #nxcommandset = [
 #
