@@ -1,0 +1,18 @@
+#python3 /data/ai.py
+#yt --transcript https://www.youtube.com/watch?v=JTwaXIUepdk | fabric --remoteOllamaServer <ip> --model llama3:latest -sp extract_wisdom
+import os
+#os.system('ls')
+
+
+choice1= input("\n1.YouTube\n2.Text\n:")
+choice1=int(choice1)
+#choice2= raw_input("\n1.YouTube\n2.Text\n:")
+
+if choice1 ==1:
+	youtubelink = input("paste YouTube link and hit Enter\n:")
+	faboption = input('copy and paste one of the options listed below:\nagility_story\n ai\n analyze_answers\n analyze_claims\n analyze_debate\n analyze_incident\n analyze_logs\n analyze_malware\n analyze_paper\n analyze_patent\n analyze_personality\n analyze_presentation\n analyze_prose\n analyze_prose_json\n analyze_prose_pinker\n analyze_spiritual_text\n analyze_tech_impact\n analyze_threat_report\n analyze_threat_report_trends\n answer_interview_question\n ask_secure_by_design_questions\n check_agreement\n clean_text\n coding_master\n compare_and_contrast\n create_5_sentence_summary\n create_academic_paper\n create_ai_jobs_analysis\n create_aphorisms\n create_art_prompt\n create_better_frame\n create_command\n create_git_diff_commit\n create_idea_compass\n create_investigation_visualization\n create_keynote\n create_logo\n create_markmap_visualization\n create_mermaid_visualization\n create_micro_summary\n create_network_threat_landscape\n create_npc\n create_quiz\n create_reading_plan\n create_report_finding\n create_security_update\n create_show_intro\n create_stride_threat_model\n create_summary\n create_threat_scenarios\n create_upgrade_pack\n create_video_chapters\n create_visualization\n explain_code\n explain_docs\n explain_project\n explain_terms\n extract_algorithm_update_recommendations\n extract_article_wisdom\n extract_book_ideas\n extract_book_recommendations\n extract_business_ideas\n extract_extraordinary_claims\n extract_ideas\n extract_insights\n extract_main_idea\n extract_patterns\n extract_poc\n extract_predictions\n extract_questions\n extract_song_meaning\n extract_wisdom\n extract_wisdom_agents\n extract_wisdom_dm\n extract_wisdom_nometa\n find_hidden_message\n find_logical_fallacies\n improve_academic_writing\n improve_prompt\n improve_report_finding\n improve_writing\n label_and_rate\n official_pattern_template\n philocapsulate\n provide_guidance\n raw_query\n recommend_artists\n show_fabric_options_markmap\n summarize\n summarize_git_changes\n summarize_git_diff\n summarize_micro\n summarize_newsletter\n summarize_paper\n summarize_pull-requests\n summarize_rpg_session\n to_flashcards\n tweet\n write_essay\n write_micro_essay\n write_nuclei_template_rule\n write_pull-request\n write_semgrep_rule\n:')
+	#print('yt --transcript '+ youtubelink + ' | fabric --remoteOllamaServer <ip> --model llama3:latest -sp extract_wisdom')
+	os.system('yt --transcript '+ youtubelink + ' | fabric --remoteOllamaServer <ip> --model llama3:latest -sp '+faboption)
+
+
+
