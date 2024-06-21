@@ -1,0 +1,90 @@
+#python3 /mnt/c/Users/abekele/'OneDrive - VMware, Inc'/Documents/opmanagerapi.py
+import requests
+import csv
+from csv import reader
+import os
+import re
+import time
+from datetime import datetime
+import base64
+from requests.api import head
+from requests.exceptions import ConnectTimeout
+requests.packages.urllib3.disable_warnings() 
+import pandas as pd
+import numpy as np
+import json
+
+
+
+
+print('working...')
+
+try:
+    os.remove("/home/svc.isebackup/scripts/csv_files/galaxy_device_inventory.csv")
+except:
+    print('file not found')
+
+headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+}
+
+#-------------------------------------------------------------------------------------------------------------------------------
+opdata=[]
+
+csvheader= ['device_name','ip_address','owner','region','site_code','device_type','model','vendor']
+#csvheader= ['deviceName','ipaddress','Device_Owner','category','type','vendorName']
+
+
+url='https://galaxy-dev.infra-nprd.vmware.com/api/v1/export_network_devices'
+response= requests.request("GET",url,headers=headers,data={}, verify=False)
+myjson=response.json()
+
+
+for i in myjson['Result']:
+    listing = [i['device_name'], i['ip_address'], i['owner'], i['region'], i['site_code'], i['device_type'], i['model'], i['vendor']]
+    opdata.append(listing)
+
+with open('/home/svc.isebackup/scripts/csv_files/galaxy_device_inventory.csv', 'w',encoding='UTF8',newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(csvheader)
+    writer.writerows(opdata)
+
+
+#-----------------------------------------------------------------------------------------------------------
+
+
+
+
+#df = pd.read_json(myjson)
+#df.to_csv('/home/svc.isebackup/scripts/csv_files/opmanager_output.csv')
+
+#data = json.loads(myjson)
+#df = pd.read_json(myjson)
+#df.to_csv('/home/svc.isebackup/scripts/csv_files/opmanager_output.csv')
+#with open('/home/svc.isebackup/scripts/csv_files/opmanager_output.csv', 'w') as f:
+#    writer = csv.DictWriter(f, fieldnames=headers)
+#    writer.writeheader()
+#    writer.writerows(data)
+
+
+
+#for i in myjson:
+#    for n in i:
+#        print(n)
+#    print(i)
+
+
+#    listing = [i['device_name'],i['ip_address'],i['owner']]
+    #opdata.append(listing)
+#print(opdata)
+#with open('/home/svc.isebackup/scripts/csv_files/galaxy_device_inventory.csv', 'w',encoding='UTF8',newline='') as f:
+#    writer = csv.writer(f)
+#    writer.writerow(csvheader)
+#    writer.writerows(myjson)
+
+
+ 
+
+
+print('done!')
