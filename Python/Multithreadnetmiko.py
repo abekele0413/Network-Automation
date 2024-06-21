@@ -20,7 +20,7 @@ rowsvalue =ws.max_row
 
 username = "svc.isebackup"
 passwdgetpass = getpass()
-password = passwdgetpass+"4Nq31!8^hh.!xN.XTj"
+password = passwdgetpass+"4"
 
 command3 = ''
 command4 = ''
