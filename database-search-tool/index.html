@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<div class="container">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Database Search Tool</title>
+    
+</head>
+<div class="square-border">
+    <body>
+    
+    <h1>Database Search Tool</h1>
+    
+    <form action="run_script.php" method="post">
+        <label for="num1">DB search:</label>
+        <input type="text" class="my-textbox" id="num1" name="num1"><br>
+        <div class="wrapper">        
+        <label for="operation">Field name:</label>
+        <select class="my-select" id="operation" name="operation">
+            <option value="PersonID">PersonID</option>
+            <option value="LastName">LastName</option>
+            <option value="FirstName">FirstName</option>
+            <option value="Address">Address</option>
+            <option value="City">City</option>
+        </select>
+        
+        <select class="my-select2" id="operation2" name="operation2">
+            <option value="PersonID2">PersonID2</option>
+            <option value="LastName2">LastName2</option>
+            <option value="FirstName2">FirstName2</option>
+            <option value="Address2">Address2</option>
+            <option value="City2">City2</option>
+        </select>
+        </div>
+        <label for="search_type">Search type: </label>
+        <input type="radio" id="EXACT" name="search_type" value="exact">
+	<label for="exact">Exact  </label> 
+	<input type="radio" id="LIKE" name="search_type" value="like" checked>
+	<label for="like">Like</label><br>
+	<label for="Database">Tables: </label>
+	<input type="radio" name="tables" value="Persons" onchange="showSelectList(this.value)" checked> Persons
+	<input type="radio" name="tables" value="Persons2" onchange="showSelectList(this.value)" > Persons2
+	<script>
+	function showSelectList(value) {
+	  const selectList1 = document.getElementById('operation');
+	  const selectList2 = document.getElementById('operation2');
+  
+	  if (value === 'Persons') {
+	    selectList1.style.display = 'block';
+	    selectList2.style.display = 'none';
+	  } else if (value === 'Persons2') {
+	    selectList1.style.display = 'none';
+	    selectList2.style.display = 'block';
+	  }
+	}
+	
+	 </script>
+	 <br>
+        <button class="gobutton" style="vertical-align:middle"><span>Run DB Search</span></button>
+    </form>
+</body>
+</div>
+</div>
+</html>
