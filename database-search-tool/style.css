@@ -1,0 +1,127 @@
+
+body {
+  background-color: #f2f2f2;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+}
+input[type=radio] {
+  accent-color: green;
+}
+h1 {
+  color: #00698f;
+  font-size: 40px;
+}
+p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+.back-button {
+  font-size: 20px;
+}
+.gobutton {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #00698f;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 16px;
+  padding: 5px;
+  width: 150px;
+  transition: all 0.5s;
+  cursor: pointer;000
+  margin: 5px;
+}
+.gobutton span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+.gobutton span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+.gobutton:hover span {
+  padding-right: 15px;
+}
+.gobutton:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+.my-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #DCDCDC;
+  border: 1px solid #aaa;
+  padding: 4px 10px;
+  font-size: 16px;
+  color: #333;
+  width: 150px;
+  border-radius: 1px;
+  display: block;
+}
+.my-select:focus {
+  outline: none;
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.my-select2 {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #DCDCDC;
+  border: 1px solid #aaa;
+  padding: 4px 10px;
+  font-size: 16px;
+  color: #333;
+  width: 150px;
+  border-radius: 1px;
+  display: none;
+}
+.my-select2:focus {
+  outline: none;
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.my-textbox {
+  width: 300px;
+  height: 20px;
+  font-size: 18px;
+  font-family: Arial, sans-serif;
+  padding: 5px;
+  margin: 1px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.my-textbox:focus {
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+.my-textbox:hover {
+  border-color: #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.container {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.wrapper {
+  display: flex;
+}
+/* .square-border {
+  box-shadow: 0 0 0 5px #068;
+  padding: 60px;
+  border-radius: 20px;
+  width: calc(70vh - 2px);
+  height: calc(40vh - 2px);
+}*/
